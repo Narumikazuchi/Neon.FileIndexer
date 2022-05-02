@@ -7,10 +7,11 @@
 		<LangVersion>preview</LangVersion>
 		<EnablePreviewFeatures>True</EnablePreviewFeatures>
 		<PlatformTarget>x64</PlatformTarget>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Narumikazuchi.Collections" Version="5.0.1" />
+		<PackageReference Include="Narumikazuchi.Singletons" Version="1.0.0-prerelease" />
 	</ItemGroup>
 
 </Project>

@@ -5,6 +5,8 @@ VisualStudioVersion = 17.1.31911.260
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Narumikazuchi.Neon.FileIndexer", "Narumikazuchi.Neon.FileIndexer\Narumikazuchi.Neon.FileIndexer.csproj", "{1E7F67D1-43C1-4F4A-A408-9D9EB4BB9753}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTest", "UnitTest\UnitTest.csproj", "{0A85B8D5-4C71-47A5-8E85-C37DF855D82C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{1E7F67D1-43C1-4F4A-A408-9D9EB4BB9753}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1E7F67D1-43C1-4F4A-A408-9D9EB4BB9753}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1E7F67D1-43C1-4F4A-A408-9D9EB4BB9753}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A85B8D5-4C71-47A5-8E85-C37DF855D82C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A85B8D5-4C71-47A5-8E85-C37DF855D82C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A85B8D5-4C71-47A5-8E85-C37DF855D82C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A85B8D5-4C71-47A5-8E85-C37DF855D82C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
