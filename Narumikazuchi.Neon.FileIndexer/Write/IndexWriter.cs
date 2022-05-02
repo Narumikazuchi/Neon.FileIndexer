@@ -1,6 +1,6 @@
 ﻿namespace Narumikazuchi.Neon.FileIndexer;
 
-public sealed partial class IndexWriter : IIndexWriter
+public sealed partial class IndexWriter
 {
     public IndexWriter(String indexStorageLocation) :
         this(new DirectoryInfo(indexStorageLocation))
@@ -95,10 +95,10 @@ partial class IndexWriter
         Dictionary<String, __Address> addresses = new();
 
         Int64 address = 0L;
-        foreach (String keyword in document.Items
+        foreach (String keyword in document.m_KeywordMap
                                            .Keys)
         {
-            Byte[] data = document.Items[keyword]
+            Byte[] data = document.m_KeywordMap[keyword]
                                   .ToByteArray(fileAddresses);
 
             bytes.AddRange(data);
@@ -118,7 +118,7 @@ partial class IndexWriter
         Dictionary<Char, __Address> addresses = new();
 
         Int64 offset = 0L;
-        foreach (String keyword in document.Items
+        foreach (String keyword in document.m_KeywordMap
                                            .Keys)
         {
             Int64 start = offset;
@@ -201,8 +201,54 @@ partial class IndexWriter
 // IIndexWriter
 partial class IndexWriter : IIndexWriter
 {
-    public void Write(IEnumerable<FileInfo> files,
-                      IEnumerable<String> tags)
+    public void Exclude(FileInfo file)
+    {
+        ArgumentNullException.ThrowIfNull(file);
+
+        IndexDocument document;
+        if (!m_DictionaryFile.Exists ||
+            !m_KeywordFile.Exists ||
+            !m_AddressFile.Exists ||
+            !m_DataFile.Exists)
+        {
+            document = new();
+        }
+        else
+        {
+            using IIndexReader reader = new IndexReader(this.IndexStoreLocation);
+            document = reader.ReadAll();
+        }
+
+        document.Remove(file);
+        this.WriteToDisk(document);
+    }
+    public void Exclude(IEnumerable<FileInfo> files)
+    {
+        ArgumentNullException.ThrowIfNull(files);
+
+        IndexDocument document;
+        if (!m_DictionaryFile.Exists ||
+            !m_KeywordFile.Exists ||
+            !m_AddressFile.Exists ||
+            !m_DataFile.Exists)
+        {
+            document = new();
+        }
+        else
+        {
+            using IIndexReader reader = new IndexReader(this.IndexStoreLocation);
+            document = reader.ReadAll();
+        }
+
+        foreach (FileInfo file in files)
+        {
+            document.Remove(file);
+        }
+        this.WriteToDisk(document);
+    }
+
+    public void Include(IEnumerable<FileInfo> files,
+                        IEnumerable<String> tags)
     {
         ArgumentNullException.ThrowIfNull(files);
         ArgumentNullException.ThrowIfNull(tags);
@@ -229,8 +275,8 @@ partial class IndexWriter : IIndexWriter
 
         this.WriteToDisk(document);
     }
-    public void Write(FileInfo file,
-                      IEnumerable<String> tags)
+    public void Include(FileInfo file,
+                        IEnumerable<String> tags)
     {
         ArgumentNullException.ThrowIfNull(file);
         ArgumentNullException.ThrowIfNull(tags);

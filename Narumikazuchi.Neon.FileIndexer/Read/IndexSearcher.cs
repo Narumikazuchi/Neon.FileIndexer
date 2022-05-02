@@ -165,3 +165,10 @@ partial class IndexSearcher
 
     private readonly IIndexReader m_Reader;
 }
+
+// IDisposable
+partial class IndexSearcher : IDisposable
+{
+    public void Dispose() =>
+        m_Reader.Dispose();
+}

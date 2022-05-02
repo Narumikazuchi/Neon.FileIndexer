@@ -99,11 +99,13 @@ partial class IndexReader
         return new() { Start = -1L, Length = 0L };
     }
 
-    private __Address GetAddressLists(String keyword,
-                                      in __Address address)
+    private IReadOnlyCollection<__Address> GetAddressLists(String keyword,
+                                                           in __Address address)
     {
         using MemoryMappedViewAccessor accessor = m_KeywordMemoryFile.CreateViewAccessor(offset: address.Start,
                                                                                          size: address.Length);
+
+        List<__Address> options = new();
 
         Int64 offset = 0L;
         while (offset < address.Length)
@@ -122,7 +124,8 @@ partial class IndexReader
             ReadOnlySpan<Byte> keywordBytes = bytes.ToArray();
             String current = keywordBytes.ToUTF8String();
 
-            if (current == keyword)
+            if (current.StartsWith(keyword) ||
+                current.Contains(keyword))
             {
                 bytes.Clear();
                 unsafe
@@ -137,26 +140,20 @@ partial class IndexReader
                 ReadOnlySpan<Byte> addressBytes = bytes.ToArray();
                 Int64 start = BitConverter.ToInt64(addressBytes[..sizeof(Int64)]);
                 Int64 length = BitConverter.ToInt64(addressBytes[sizeof(Int64)..]);
-                return new()
+
+                options.Add(new()
                 {
                     Start = start,
                     Length = length,
-                };
+                });
             }
-            else
+            unsafe
             {
-                unsafe
-                {
-                    offset += sizeof(__Address);
-                }
+                offset += sizeof(__Address);
             }
         }
 
-        return new()
-        {
-            Start = -1L,
-            Length = 0L
-        };
+        return options;
     }
 
     private IEnumerable<__Address> GetDataAdresses(in __Address address)
@@ -219,6 +216,7 @@ partial class IndexReader
     private readonly MemoryMappedFile m_KeywordMemoryFile;
     private readonly MemoryMappedFile m_AddressMemoryFile;
     private readonly MemoryMappedFile m_DataMemoryFile;
+    private Boolean m_IsDisposed;
 }
 
 // IDisposable
@@ -226,10 +224,16 @@ partial class IndexReader : IDisposable
 {
     public void Dispose()
     {
+        if (m_IsDisposed)
+        {
+            return;
+        }
+
         m_DictionaryMemoryFile.Dispose();
         m_KeywordMemoryFile.Dispose();
         m_AddressMemoryFile.Dispose();
         m_DataMemoryFile.Dispose();
+        m_IsDisposed = true;
     }
 }
 
@@ -272,21 +276,24 @@ partial class IndexReader : IIndexReader
             return Array.Empty<IndexEntry>();
         }
 
-        __Address list = this.GetAddressLists(keyword: keyword,
-                                              address: section);
+        IReadOnlyCollection<__Address> addressLists = this.GetAddressLists(keyword: keyword,
+                                                                           address: section);
 
-        if (list.Start == -1L ||
-            list.Length == 0L)
+        if (addressLists.Count == 0)
         {
             return Array.Empty<IndexEntry>();
         }
 
-        IEnumerable<__Address> addresses = this.GetDataAdresses(list);
-
         HashSet<IndexEntry> entries = new(__IndexEntryComparer.Instance);
-        foreach (__Address address in addresses)
+
+        foreach (__Address listAddress in addressLists)
         {
-            entries.Add(this.GetEntry(address));
+            IEnumerable<__Address> addresses = this.GetDataAdresses(listAddress);
+
+            foreach (__Address address in addresses)
+            {
+                entries.Add(this.GetEntry(address));
+            }
         }
 
         List<IndexEntry> result = new(entries);

@@ -11,12 +11,10 @@ public sealed partial class IndexDocument
         ArgumentNullException.ThrowIfNull(file);
         ArgumentNullException.ThrowIfNull(tags);
 
-        if (m_Files.BinarySearch(file.FullName.ToLower()) > -1)
+        if (m_Files.ContainsKey(file.FullName.ToLower()))
         {
             return;
         }
-        m_Files.Add(file.FullName.ToLower());
-        m_Files.Sort();
 
         List<String> keywords = new(tags);
 
@@ -28,17 +26,52 @@ public sealed partial class IndexDocument
                                keywords: keywords);
         foreach (String keyword in keywords.Select(x => x.ToLower()))
         {
-            if (m_Items.ContainsKey(keyword))
+            if (m_KeywordMap.ContainsKey(keyword))
             {
-                m_Items[keyword].Add(entry);
+                m_KeywordMap[keyword].Add(entry);
                 continue;
             }
             else
             {
-                m_Items.Add(key: keyword,
+                m_KeywordMap.Add(key: keyword,
                             value: new() { entry });
                 continue;
             }
+        }
+
+        m_Files.Add(key: file.FullName.ToLower(),
+                    value: entry);
+    }
+
+    public void Remove(FileInfo file)
+    {
+        ArgumentNullException.ThrowIfNull(file);
+
+        String path = file.FullName.ToLower();
+        if (!m_Files.ContainsKey(path))
+        {
+            return;
+        }
+
+        foreach (String keyword in m_Files[path].Keywords)
+        {
+            m_KeywordMap[keyword].Remove(m_Files[path]);
+        }
+
+        m_Files.Remove(path);
+
+        List<String> orphans = new();
+        foreach (String keyword in m_KeywordMap.Keys)
+        {
+            if (m_KeywordMap[keyword].Count == 0)
+            {
+                orphans.Add(keyword);
+            }
+        }
+
+        foreach (String keyword in orphans)
+        {
+            m_KeywordMap.Remove(keyword);
         }
     }
 }
@@ -51,43 +84,39 @@ partial class IndexDocument
 
     internal void Add(IndexEntry entry)
     {
-        if (m_Files.BinarySearch(entry.File.FullName.ToLower()) > -1)
+        String path = entry.File.FullName.ToLower();
+        if (m_Files.ContainsKey(path))
         {
             return;
         }
-        m_Files.Add(entry.File.FullName.ToLower());
-        m_Files.Sort();
+        m_Files.Add(key: path,
+                    value: entry);
 
         foreach (String keyword in entry.Keywords)
         {
-            if (m_Items.ContainsKey(keyword))
+            if (m_KeywordMap.ContainsKey(keyword))
             {
-                m_Items[keyword].Add(entry);
+                m_KeywordMap[keyword].Add(entry);
                 continue;
             }
             else
             {
-                m_Items.Add(key: keyword,
-                            value: new() { entry });
+                m_KeywordMap.Add(key: keyword,
+                                 value: new() { entry });
                 continue;
             }
         }
     }
 
-    internal SortedDictionary<String, List<IndexEntry>> Items =>
-        m_Items;
-
-    private readonly SortedDictionary<String, List<IndexEntry>> m_Items = new();
-    private readonly List<String> m_Files = new();
+    internal readonly SortedDictionary<String, List<IndexEntry>> m_KeywordMap = new();
+    internal readonly SortedDictionary<String, IndexEntry> m_Files = new();
 }
 
 // IEnumerable
 partial class IndexDocument : IEnumerable
 {
     IEnumerator IEnumerable.GetEnumerator() =>
-        m_Items.Values
-               .SelectMany(x => x)
-               .Distinct(__IndexEntryComparer.Instance)
+        m_Files.Values
                .OrderBy(x => x.File.Name)
                .GetEnumerator();
 }
@@ -96,9 +125,7 @@ partial class IndexDocument : IEnumerable
 partial class IndexDocument : IEnumerable<IndexEntry>
 {
     public IEnumerator<IndexEntry> GetEnumerator() =>
-        m_Items.Values
-               .SelectMany(x => x)
-               .Distinct(__IndexEntryComparer.Instance)
+        m_Files.Values
                .OrderBy(x => x.File.Name)
                .GetEnumerator();
 }

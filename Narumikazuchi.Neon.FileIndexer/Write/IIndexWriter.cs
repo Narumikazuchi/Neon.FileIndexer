@@ -5,49 +5,71 @@ public interface IIndexWriter
 {
     public IIndexReader GetReader();
 
-    public void Write(DirectoryInfo directory) =>
-        this.Write(directory: directory,
-                   tags: Array.Empty<String>(),
-                   recursive: false);
-    public void Write(DirectoryInfo directory,
-                      IEnumerable<String> tags) =>
-        this.Write(directory: directory,
-                   tags: tags,
-                   recursive: false);
-    public void Write(DirectoryInfo directory,
-                      IEnumerable<String> tags,
-                      in Boolean recursive)
+    public void Exclude(DirectoryInfo directory) =>
+        this.Exclude(directory: directory,
+                     recursive: false);
+    public void Exclude(DirectoryInfo directory,
+                        in Boolean recursive)
     {
         ArgumentNullException.ThrowIfNull(directory);
 
         if (recursive)
         {
-            this.Write(files: GetFilesRecursive(directory),
+            this.Exclude(files: GetFilesRecursive(directory));
+            return;
+        }
+        else
+        {
+            this.Exclude(files: directory.EnumerateFiles());
+            return;
+        }
+    }
+    public void Exclude(FileInfo file);
+    public void Exclude(IEnumerable<FileInfo> files);
+
+    public void Include(DirectoryInfo directory) =>
+        this.Include(directory: directory,
+                   tags: Array.Empty<String>(),
+                   recursive: false);
+    public void Include(DirectoryInfo directory,
+                        IEnumerable<String> tags) =>
+        this.Include(directory: directory,
+                   tags: tags,
+                   recursive: false);
+    public void Include(DirectoryInfo directory,
+                        IEnumerable<String> tags,
+                        in Boolean recursive)
+    {
+        ArgumentNullException.ThrowIfNull(directory);
+
+        if (recursive)
+        {
+            this.Include(files: GetFilesRecursive(directory),
                        tags: tags);
             return;
         }
         else
         {
-            this.Write(files: directory.EnumerateFiles(),
+            this.Include(files: directory.EnumerateFiles(),
                        tags: tags);
             return;
         }
     }
-    public void Write(DirectoryInfo directory,
-                      in Boolean recursive) =>
-        this.Write(directory: directory,
+    public void Include(DirectoryInfo directory,
+                        in Boolean recursive) =>
+        this.Include(directory: directory,
                    tags: Array.Empty<String>(),
                    recursive: recursive);
-    public void Write(FileInfo file) =>
-        this.Write(file: file,
+    public void Include(FileInfo file) =>
+        this.Include(file: file,
                    tags: Array.Empty<String>());
-    public void Write(FileInfo file,
-                      IEnumerable<String> tags);
-    public void Write(IEnumerable<FileInfo> files) =>
-        this.Write(files: files,
+    public void Include(FileInfo file,
+                        IEnumerable<String> tags);
+    public void Include(IEnumerable<FileInfo> files) =>
+        this.Include(files: files,
                    tags: Array.Empty<String>());
-    public void Write(IEnumerable<FileInfo> files,
-                      IEnumerable<String> tags);
+    public void Include(IEnumerable<FileInfo> files,
+                        IEnumerable<String> tags);
 
     public DirectoryInfo IndexStoreLocation { get; }
 
