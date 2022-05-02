@@ -3,15 +3,23 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.31911.260
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Narumikazuchi.Neon.FileIndexer", "Narumikazuchi.Neon.FileIndexer\Narumikazuchi.Neon.FileIndexer.csproj", "{1E7F67D1-43C1-4F4A-A408-9D9EB4BB9753}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1E7F67D1-43C1-4F4A-A408-9D9EB4BB9753}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E7F67D1-43C1-4F4A-A408-9D9EB4BB9753}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E7F67D1-43C1-4F4A-A408-9D9EB4BB9753}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E7F67D1-43C1-4F4A-A408-9D9EB4BB9753}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {69DD5FE3-93EF-4D96-BB50-F46FF01DB065}
+		SolutionGuid = {4DFB2FBE-6A22-4502-B0FC-A07770CD4BED}
 	EndGlobalSection
 EndGlobal
