@@ -205,6 +205,11 @@ partial class IndexWriter : IIndexWriter
     {
         ArgumentNullException.ThrowIfNull(file);
 
+        if (this.IndexStoreLocation.FullName == file.DirectoryName)
+        {
+            return;
+        }
+
         IndexDocument document;
         if (!m_DictionaryFile.Exists ||
             !m_KeywordFile.Exists ||
@@ -242,6 +247,10 @@ partial class IndexWriter : IIndexWriter
 
         foreach (FileInfo file in files)
         {
+            if (this.IndexStoreLocation.FullName == file.DirectoryName)
+            {
+                continue;
+            }
             document.Remove(file);
         }
         this.WriteToDisk(document);
@@ -269,6 +278,10 @@ partial class IndexWriter : IIndexWriter
 
         foreach (FileInfo file in files)
         {
+            if (this.IndexStoreLocation.FullName == file.DirectoryName)
+            {
+                continue;
+            }
             document.Add(file: file,
                          tags: tags);
         }
@@ -280,6 +293,11 @@ partial class IndexWriter : IIndexWriter
     {
         ArgumentNullException.ThrowIfNull(file);
         ArgumentNullException.ThrowIfNull(tags);
+
+        if (this.IndexStoreLocation.FullName == file.DirectoryName)
+        {
+            return;
+        }
 
         IndexDocument document;
         if (!m_DictionaryFile.Exists ||
