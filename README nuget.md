@@ -1,0 +1,1 @@
+Provides the functionality of a file indexer with a simple filtering mechanism. A detailed overview of the contents and their used can be found in the [wiki](https://github.com/Narumikazuchi/Neon.FileIndexer/wiki).

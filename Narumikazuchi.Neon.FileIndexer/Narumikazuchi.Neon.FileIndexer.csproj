@@ -8,6 +8,19 @@
 		<EnablePreviewFeatures>True</EnablePreviewFeatures>
 		<PlatformTarget>x64</PlatformTarget>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+		<Authors>Narumikazuchi</Authors>
+		<Copyright>©2021 Narumikazuchi</Copyright>
+		<RepositoryUrl>https://github.com/Narumikazuchi/Neon.FileIndexer</RepositoryUrl>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<Version>1.0.0-prerelease</Version>
+		<PackageReleaseNotes></PackageReleaseNotes>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<NoPackageAnalysis>true</NoPackageAnalysis>
+		<PackageProjectUrl>https://github.com/Narumikazuchi/Neon.FileIndexer/wiki</PackageProjectUrl>
+		<PackageIcon>logo.png</PackageIcon>
+		<PackageTags>File; Filesystem; Index; Indexing; Indexer; Windows</PackageTags>
+		<PackageReadmeFile>README nuget.md</PackageReadmeFile>
+		<Description>Provides the functionality of a file indexer with a simple filtering mechanism.</Description>
 	</PropertyGroup>
 
 	<ItemGroup>
