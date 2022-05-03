@@ -15,11 +15,6 @@ public sealed partial class IndexReader
             Directory.CreateDirectory(indexStorageLocation.FullName);
         }
 
-        if (!indexStorageLocation.Exists)
-        {
-            throw new ArgumentException("Couldn't create directory.");
-        }
-
         m_DictionaryFile = new(Path.Combine(indexStorageLocation.FullName,
                                             "dictionary"));
         m_KeywordFile = new(Path.Combine(indexStorageLocation.FullName,

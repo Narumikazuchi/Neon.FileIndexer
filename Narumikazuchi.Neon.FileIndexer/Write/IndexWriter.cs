@@ -15,11 +15,6 @@ public sealed partial class IndexWriter
             Directory.CreateDirectory(indexStorageLocation.FullName);
         }
 
-        if (!indexStorageLocation.Exists)
-        {
-            throw new ArgumentException("Couldn't create directory.");
-        }
-
         m_DictionaryFile = new(Path.Combine(indexStorageLocation.FullName,
                                             "dictionary"));
         m_KeywordFile = new(Path.Combine(indexStorageLocation.FullName,
@@ -37,6 +32,22 @@ public sealed partial class IndexWriter
 // Non-Public
 partial class IndexWriter
 {
+    private IndexDocument OpenDocument()
+    {
+        if (!m_DictionaryFile.Exists ||
+            !m_KeywordFile.Exists ||
+            !m_AddressFile.Exists ||
+            !m_DataFile.Exists)
+        {
+            return new();
+        }
+        else
+        {
+            using IIndexReader reader = new IndexReader(this.IndexStoreLocation);
+            return reader.ReadAll();
+        }
+    }
+
     private void WriteToDisk(IndexDocument document)
     {
         List<Byte> fileData = new();
@@ -196,6 +207,7 @@ partial class IndexWriter
     private readonly FileInfo m_KeywordFile;
     private readonly FileInfo m_AddressFile;
     private readonly FileInfo m_DataFile;
+    private IndexDocument? m_Document;
 }
 
 // IIndexWriter
@@ -210,39 +222,20 @@ partial class IndexWriter : IIndexWriter
             return;
         }
 
-        IndexDocument document;
-        if (!m_DictionaryFile.Exists ||
-            !m_KeywordFile.Exists ||
-            !m_AddressFile.Exists ||
-            !m_DataFile.Exists)
+        if (m_Document is null)
         {
-            document = new();
-        }
-        else
-        {
-            using IIndexReader reader = new IndexReader(this.IndexStoreLocation);
-            document = reader.ReadAll();
+            m_Document = this.OpenDocument();
         }
 
-        document.Remove(file);
-        this.WriteToDisk(document);
+        m_Document.Remove(file);
     }
     public void Exclude(IEnumerable<FileInfo> files)
     {
         ArgumentNullException.ThrowIfNull(files);
 
-        IndexDocument document;
-        if (!m_DictionaryFile.Exists ||
-            !m_KeywordFile.Exists ||
-            !m_AddressFile.Exists ||
-            !m_DataFile.Exists)
+        if (m_Document is null)
         {
-            document = new();
-        }
-        else
-        {
-            using IIndexReader reader = new IndexReader(this.IndexStoreLocation);
-            document = reader.ReadAll();
+            m_Document = this.OpenDocument();
         }
 
         foreach (FileInfo file in files)
@@ -251,9 +244,8 @@ partial class IndexWriter : IIndexWriter
             {
                 continue;
             }
-            document.Remove(file);
+            m_Document.Remove(file);
         }
-        this.WriteToDisk(document);
     }
 
     public void Include(IEnumerable<FileInfo> files,
@@ -262,18 +254,9 @@ partial class IndexWriter : IIndexWriter
         ArgumentNullException.ThrowIfNull(files);
         ArgumentNullException.ThrowIfNull(tags);
 
-        IndexDocument document;
-        if (!m_DictionaryFile.Exists ||
-            !m_KeywordFile.Exists ||
-            !m_AddressFile.Exists ||
-            !m_DataFile.Exists)
+        if (m_Document is null)
         {
-            document = new();
-        }
-        else
-        {
-            using IIndexReader reader = new IndexReader(this.IndexStoreLocation);
-            document = reader.ReadAll();
+            m_Document = this.OpenDocument();
         }
 
         foreach (FileInfo file in files)
@@ -282,11 +265,9 @@ partial class IndexWriter : IIndexWriter
             {
                 continue;
             }
-            document.Add(file: file,
-                         tags: tags);
+            m_Document.Add(file: file,
+                           tags: tags);
         }
-
-        this.WriteToDisk(document);
     }
     public void Include(FileInfo file,
                         IEnumerable<String> tags)
@@ -299,24 +280,24 @@ partial class IndexWriter : IIndexWriter
             return;
         }
 
-        IndexDocument document;
-        if (!m_DictionaryFile.Exists ||
-            !m_KeywordFile.Exists ||
-            !m_AddressFile.Exists ||
-            !m_DataFile.Exists)
+        if (m_Document is null)
         {
-            document = new();
-        }
-        else
-        {
-            using IIndexReader reader = new IndexReader(this.IndexStoreLocation);
-            document = reader.ReadAll();
+            m_Document = this.OpenDocument();
         }
 
-        document.Add(file: file,
-                     tags: tags);
+        m_Document.Add(file: file,
+                       tags: tags);
+    }
 
-        this.WriteToDisk(document);
+    public void Write()
+    {
+        if (m_Document is null)
+        {
+            return;
+        }
+
+        this.WriteToDisk(m_Document);
+        m_Document = null;
     }
 
     public DirectoryInfo IndexStoreLocation { get; }

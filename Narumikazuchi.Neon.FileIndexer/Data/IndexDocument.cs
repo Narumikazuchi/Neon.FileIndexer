@@ -11,15 +11,16 @@ public sealed partial class IndexDocument
         ArgumentNullException.ThrowIfNull(file);
         ArgumentNullException.ThrowIfNull(tags);
 
-        if (m_Files.ContainsKey(file.FullName.ToLower()))
+        String path = file.FullName.ToLower();
+        if (m_Files.ContainsKey(path) ||
+            m_Excluded.Contains(path))
         {
             return;
         }
 
         List<String> keywords = new(tags);
 
-        String[] words = file.FullName.ToLower()
-                                      .SplitNormalised();
+        String[] words = path.SplitNormalised();
         keywords.AddRange(words);
 
         IndexEntry entry = new(file: file,
@@ -39,7 +40,7 @@ public sealed partial class IndexDocument
             }
         }
 
-        m_Files.Add(key: file.FullName.ToLower(),
+        m_Files.Add(key: path,
                     value: entry);
     }
 
@@ -48,6 +49,7 @@ public sealed partial class IndexDocument
         ArgumentNullException.ThrowIfNull(file);
 
         String path = file.FullName.ToLower();
+        m_Excluded.Add(path);
         if (!m_Files.ContainsKey(path))
         {
             return;
@@ -110,6 +112,7 @@ partial class IndexDocument
 
     internal readonly SortedDictionary<String, List<IndexEntry>> m_KeywordMap = new();
     internal readonly SortedDictionary<String, IndexEntry> m_Files = new();
+    private readonly List<String> m_Excluded = new();
 }
 
 // IEnumerable

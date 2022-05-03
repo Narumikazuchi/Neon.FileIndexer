@@ -41,10 +41,10 @@ partial class IndexEntry
              i < count;
              i++)
         {
-            count = BitConverter.ToInt32(rest);
-            String keyword = rest[..(count + sizeof(Int32))].ToUTF8String();
+            Int32 size = BitConverter.ToInt32(rest);
+            String keyword = rest[..(size + sizeof(Int32))].ToUTF8String();
             keywords.Add(keyword);
-            rest = rest[(count + sizeof(Int32))..];
+            rest = rest[(size + sizeof(Int32))..];
         }
 
         return new(file: new(path),

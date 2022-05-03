@@ -81,19 +81,11 @@ partial class IndexSearcher
 
         foreach (String filter in filters.Skip(1))
         {
-            HashSet<IndexEntry> temp = new(__IndexEntryComparer.Instance);
-            foreach (IndexEntry entry in m_Reader.ReadByKeyword(filter))
-            {
-                if (!exclude.Any(x => IsContainedInEntry(x, entry)))
-                {
-                    temp.Add(entry);
-                }
-            }
-
-            List<IndexEntry> remove = new();
+            HashSet<IndexEntry> remove = new(__IndexEntryComparer.Instance);
             foreach (IndexEntry entry in entries)
             {
-                if (!temp.Contains(entry))
+                if (!entry.Keywords.Any(x => x.Contains(filter)) ||
+                    exclude.Any(x => IsContainedInEntry(x, entry)))
                 {
                     remove.Add(entry);
                 }
@@ -136,19 +128,16 @@ partial class IndexSearcher
 
         foreach (String filter in filters.Skip(1))
         {
-            HashSet<IndexEntry> temp = new(__IndexEntryComparer.Instance);
-            foreach (IndexEntry entry in m_Reader.ReadByKeyword(filter))
+            if (entries.Count == 0)
             {
-                if (!exclude.Any(x => IsContainedInEntry(x, entry)))
-                {
-                    temp.Add(entry);
-                }
+                break;
             }
 
-            List<IndexEntry> remove = new();
+            HashSet<IndexEntry> remove = new(__IndexEntryComparer.Instance);
             foreach (IndexEntry entry in entries)
             {
-                if (!temp.Contains(entry))
+                if (!entry.Keywords.Any(x => x.Contains(filter)) ||
+                    exclude.Any(x => IsContainedInEntry(x, entry)))
                 {
                     remove.Add(entry);
                 }

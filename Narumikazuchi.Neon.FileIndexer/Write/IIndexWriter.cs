@@ -71,6 +71,8 @@ public interface IIndexWriter
     public void Include(IEnumerable<FileInfo> files,
                         IEnumerable<String> tags);
 
+    public void Write();
+
     public DirectoryInfo IndexStoreLocation { get; }
 
     private static IEnumerable<FileInfo> GetFilesRecursive(DirectoryInfo directory) =>
